@@ -1,38 +1,80 @@
-.App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
+.app {
+  font-family: Arial, Helvetica, sans-serif;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+}
+
+.app-header {
+  background-color: #111827;
   color: white;
+  padding: 1.5rem;
+  text-align: center;
 }
 
-.App-link {
-  color: #61dafb;
+.app-nav {
+  background-color: #1f2933;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.app-nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0.5rem 1rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.app-nav a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.app-nav a:hover {
+  text-decoration: underline;
+}
+
+.app-main {
+  flex: 1;
+  padding: 1.5rem;
+  background-color: #f3f4f6;
+}
+
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.streamlist-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.streamlist-form input {
+  padding: 0.5rem;
+  font-size: 1rem;
+}
+
+.streamlist-form button {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.note {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+.app-footer {
+  text-align: center;
+  padding: 0.75rem;
+  background-color: #e5e7eb;
 }
