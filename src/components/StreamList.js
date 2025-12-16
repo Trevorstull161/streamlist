@@ -1,46 +1,177 @@
 import React, { useState } from "react";
 
-function StreamList() {
-  const [item, setItem] = useState("");
+import IconButton from "@mui/material/IconButton";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import UndoIcon from "@mui/icons-material/Undo";
+import SaveIcon from "@mui/icons-material/Save";
+import CloseIcon from "@mui/icons-material/Close";
 
-    if (item.trim() === "") {
-      console.log("No item entered");
-      return;
-    }
+export default function StreamList() {
+  const [inputValue, setInputValue] = useState("");
+  const [items, setItems] = useState([]);
 
-    console.log("StreamList item added:", item);
-    setItem("");
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const trimmed = inputValue.trim();
+    if (!trimmed) return;
+
+    const newItem = {
+      id: crypto.randomUUID(),
+      text: trimmed,
+      isCompleted: false,
+      isEditing: false,
+      editText: trimmed,
+    };
+
+    setItems((prev) => [newItem, ...prev]);
+
+    console.log("StreamList item added:", trimmed);
+
+    setInputValue("");
+  };
+
+  const handleDelete = (id) => {
+    setItems((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const handleToggleComplete = (id) => {
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, isCompleted: !item.isCompleted } : item
+      )
+    );
+  };
+
+  const handleStartEdit = (id) => {
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, isEditing: true, editText: item.text } : item
+      )
+    );
+  };
+
+  const handleCancelEdit = (id) => {
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, isEditing: false, editText: item.text } : item
+      )
+    );
+  };
+
+  const handleEditChange = (id, value) => {
+    setItems((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, editText: value } : item))
+    );
+  };
+
+  const handleSaveEdit = (id) => {
+    setItems((prev) =>
+      prev.map((item) => {
+        if (item.id !== id) return item;
+
+        const trimmed = item.editText.trim();
+        if (!trimmed) {
+          return { ...item, isEditing: false, editText: item.text };
+        }
+
+        return {
+          ...item,
+          text: trimmed,
+          editText: trimmed,
+          isEditing: false,
+        };
+      })
+    );
   };
 
   return (
-    <section className="page">
+    <div style={{ maxWidth: 850, margin: "0 auto", padding: 16 }}>
       <h2>StreamList</h2>
-      <p>
-        Use this page to add movies or shows you want to watch. For Week 1,
-        your entries will appear in the browser console.
-      </p>
+      <p>Add a movie or show, then mark it complete, edit it, or delete it.</p>
 
-      <form onSubmit={handleSubmit} className="streamlist-form">
-        <label htmlFor="streamItem">Add to your StreamList:</label>
-        <input
-          id="streamItem"
-          type="text"
-          value={item}
-          placeholder="Type a movie or show title"
-          onChange={(event) => setItem(event.target.value)}
+      <form onSubmit={handleSubmit} style={{ display: "flex", gap: 12, marginBottom: 16 }}>
+        <TextField
+          label="Add to your StreamList"
+          variant="outlined"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          fullWidth
         />
-        <button type="submit">Add</button>
+        <Button type="submit" variant="contained">
+          Submit
+        </Button>
       </form>
 
-      <p className="note">
-        Open the browser developer tools and look at the console to see your
-        entries printed as you add them.
-      </p>
-    </section>
+      {items.length === 0 ? (
+        <p>No items yet. Add your first one above.</p>
+      ) : (
+        <ul style={{ listStyle: "none", padding: 0, display: "grid", gap: 10 }}>
+          {items.map((item) => (
+            <li
+              key={item.id}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                padding: 12,
+                border: "1px solid #ddd",
+                borderRadius: 8,
+              }}
+            >
+              <div style={{ flex: 1 }}>
+                {item.isEditing ? (
+                  <TextField
+                    label="Edit item"
+                    variant="outlined"
+                    value={item.editText}
+                    onChange={(e) => handleEditChange(item.id, e.target.value)}
+                    fullWidth
+                  />
+                ) : (
+                  <span
+                    style={{
+                      fontSize: 16,
+                      textDecoration: item.isCompleted ? "line-through" : "none",
+                      opacity: item.isCompleted ? 0.6 : 1,
+                    }}
+                  >
+                    {item.text}
+                  </span>
+                )}
+              </div>
+
+              {item.isEditing ? (
+                <>
+                  <IconButton aria-label="save" onClick={() => handleSaveEdit(item.id)}>
+                    <SaveIcon />
+                  </IconButton>
+                  <IconButton aria-label="cancel" onClick={() => handleCancelEdit(item.id)}>
+                    <CloseIcon />
+                  </IconButton>
+                </>
+              ) : (
+                <>
+                  <IconButton aria-label="complete" onClick={() => handleToggleComplete(item.id)}>
+                    {item.isCompleted ? <UndoIcon /> : <CheckCircleIcon />}
+                  </IconButton>
+                  <IconButton aria-label="edit" onClick={() => handleStartEdit(item.id)}>
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton aria-label="delete" onClick={() => handleDelete(item.id)}>
+                    <DeleteIcon />
+                  </IconButton>
+                </>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }
-
-export default StreamList;
