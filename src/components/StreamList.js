@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import IconButton from "@mui/material/IconButton";
 import TextField from "@mui/material/TextField";
@@ -11,9 +11,31 @@ import UndoIcon from "@mui/icons-material/Undo";
 import SaveIcon from "@mui/icons-material/Save";
 import CloseIcon from "@mui/icons-material/Close";
 
+const STORAGE_KEY = "streamlist_items";
+
 export default function StreamList() {
   const [inputValue, setInputValue] = useState("");
   const [items, setItems] = useState([]);
+
+  // Load from localStorage on first render
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return;
+
+    try {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed)) {
+        setItems(parsed);
+      }
+    } catch (err) {
+      console.error("Failed to parse StreamList items from localStorage:", err);
+    }
+  }, []);
+
+  // Save to localStorage whenever items change
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  }, [items]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -51,7 +73,9 @@ export default function StreamList() {
   const handleStartEdit = (id) => {
     setItems((prev) =>
       prev.map((item) =>
-        item.id === id ? { ...item, isEditing: true, editText: item.text } : item
+        item.id === id
+          ? { ...item, isEditing: true, editText: item.text }
+          : item
       )
     );
   };
@@ -59,7 +83,9 @@ export default function StreamList() {
   const handleCancelEdit = (id) => {
     setItems((prev) =>
       prev.map((item) =>
-        item.id === id ? { ...item, isEditing: false, editText: item.text } : item
+        item.id === id
+          ? { ...item, isEditing: false, editText: item.text }
+          : item
       )
     );
   };
@@ -95,7 +121,10 @@ export default function StreamList() {
       <h2>StreamList</h2>
       <p>Add a movie or show, then mark it complete, edit it, or delete it.</p>
 
-      <form onSubmit={handleSubmit} style={{ display: "flex", gap: 12, marginBottom: 16 }}>
+      <form
+        onSubmit={handleSubmit}
+        style={{ display: "flex", gap: 12, marginBottom: 16 }}
+      >
         <TextField
           label="Add to your StreamList"
           variant="outlined"
@@ -148,22 +177,37 @@ export default function StreamList() {
 
               {item.isEditing ? (
                 <>
-                  <IconButton aria-label="save" onClick={() => handleSaveEdit(item.id)}>
+                  <IconButton
+                    aria-label="save"
+                    onClick={() => handleSaveEdit(item.id)}
+                  >
                     <SaveIcon />
                   </IconButton>
-                  <IconButton aria-label="cancel" onClick={() => handleCancelEdit(item.id)}>
+                  <IconButton
+                    aria-label="cancel"
+                    onClick={() => handleCancelEdit(item.id)}
+                  >
                     <CloseIcon />
                   </IconButton>
                 </>
               ) : (
                 <>
-                  <IconButton aria-label="complete" onClick={() => handleToggleComplete(item.id)}>
+                  <IconButton
+                    aria-label="complete"
+                    onClick={() => handleToggleComplete(item.id)}
+                  >
                     {item.isCompleted ? <UndoIcon /> : <CheckCircleIcon />}
                   </IconButton>
-                  <IconButton aria-label="edit" onClick={() => handleStartEdit(item.id)}>
+                  <IconButton
+                    aria-label="edit"
+                    onClick={() => handleStartEdit(item.id)}
+                  >
                     <EditIcon />
                   </IconButton>
-                  <IconButton aria-label="delete" onClick={() => handleDelete(item.id)}>
+                  <IconButton
+                    aria-label="delete"
+                    onClick={() => handleDelete(item.id)}
+                  >
                     <DeleteIcon />
                   </IconButton>
                 </>
@@ -175,3 +219,4 @@ export default function StreamList() {
     </div>
   );
 }
+
